@@ -1,0 +1,1 @@
+from .router import router_v1 as cargo_router_v1
