@@ -18,7 +18,7 @@ Http.defaults.baseURL = myBaseUrl
 Http.defaults.withCredentials = true
 
 Http.interceptors.request.use((config) => {
-  const csrf = useAuthStore.getState().setCsrfToken;
+  const csrf = useAuthStore.getState().setCsrfToken();
 
   if (csrf) {
     config.headers["X-CSRFToken"] = csrf;
