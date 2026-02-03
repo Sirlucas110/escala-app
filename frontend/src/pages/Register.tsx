@@ -26,7 +26,7 @@ function Register() {
     e.preventDefault();
     try {
       const response = await fetch(
-        "http://localhost:8000/api/escala/auth/register",
+        "https://escala-app.onrender.com/api/escala/auth/register",
         {
           method: "POST",
           headers: {
