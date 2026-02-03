@@ -1,14 +1,24 @@
+# deployment_settings.py
 import os
 import dj_database_url
-from .settings import *
-from .settings import BASE_DIR
 from decouple import config
+from .settings import *
 
-ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME')]
-CSRF_TRUSTED_ORIGINS = ['https://'+os.environ.get['RENDER_EXTERNAL_HOSTNAME']]
+RENDER_HOST = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 
 DEBUG = False
 SECRET_KEY = config('SECRET_KEY')
+
+ALLOWED_HOSTS = [RENDER_HOST] if RENDER_HOST else []
+CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_HOST}'] if RENDER_HOST else []
+
+DATABASES = {
+    'default': dj_database_url.parse(
+        config('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True,
+    )
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -25,16 +35,9 @@ MIDDLEWARE = [
 
 STORAGES = {
     'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage'
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'
-    }
-}
-
-DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL'),
-        conn_max_age=600
-    )
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
 }
