@@ -12,11 +12,13 @@ function getData<T>(res: AxiosResponse<T>) {
   return res.data;
 }
 
-Http.defaults.baseURL = "http://localhost:8000/api/escala";
+const isDevelopment = import.meta.env.MODE === 'development'
+const myBaseUrl = isDevelopment ? import.meta.env.VITE_API_BASE_URL_LOCAL : import.meta.env.VITE_API_BASE_URL_DEPLOY
+Http.defaults.baseURL = myBaseUrl
 Http.defaults.withCredentials = true
 
 Http.interceptors.request.use((config) => {
-  const csrf = useAuthStore.getState().csrftoken;
+  const csrf = useAuthStore.getState().setCsrfToken;
 
   if (csrf) {
     config.headers["X-CSRFToken"] = csrf;
@@ -24,6 +26,7 @@ Http.interceptors.request.use((config) => {
 
   return config;
 });
+
 
 export default Service;
 

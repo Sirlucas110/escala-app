@@ -1,12 +1,11 @@
 from ninja import Router
-from ninja.security import django_auth
 from escala.api.cargo import cargo_router_v1
 from escala.api.instrumento import instrumento_router_v1
 from escala.api.pessoa import pessoa_router_v1
 from escala.api.escala import escala_router_v1
 from escala.api.auth import auth_user_router_v1
 
-router_v1 = Router(auth=django_auth)
+router_v1 = Router()
 
 router_v1.add_router('/auth', auth_user_router_v1, tags=['Autenticação'])
 router_v1.add_router('/cargos', cargo_router_v1, tags=['Cargos'])

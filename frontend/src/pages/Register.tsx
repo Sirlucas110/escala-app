@@ -10,32 +10,33 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Church, Mail, Lock, Eye, EyeOff, User } from "lucide-react";
-import { useAuthStore } from "../store/authStore";
+import { getCSRFToken } from "../store/authStore";
 import { Button } from "@/components/ui/button";
 
 function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState("");
-    const navigate = useNavigate();
-    const initCSRF = useAuthStore((state) => state.initCSRF);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-      try {
-        const csrftoken = await initCSRF();
-      const response = await fetch("http://localhost:8000/api/escala/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/escala/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+          },
+          body: JSON.stringify({ email, password }),
+          credentials: "include",
         },
-        body: JSON.stringify({ email, password }),
-        credentials: "include",
-      });
+      );
       const data = await response.json();
       if (response.ok) {
         setSuccess("Registration successful! Please log in.");

@@ -1,120 +1,163 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-interface User {
+/* =========================
+   Tipos
+========================= */
+
+export interface User {
   id: number;
   email: string;
-  name: string;
+  username?: string;
 }
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  csrftoken: string | null;
 
-  initCSRF: () => Promise<string>;
+  setCsrfToken: () => Promise<string>;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  user: null,
-  isAuthenticated: false,
-  csrftoken: null,
+/* =========================
+   Store
+========================= */
 
-  // 🔐 Garante CSRF token (cacheado)
-  initCSRF: async () => {
-    const token = get().csrftoken;
-    if (token) return token;
-
-    const response = await fetch(
-      "http://localhost:8000/api/escala/auth/set-csrf-token",
-      {
-        credentials: "include",
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to get CSRF token");
-    }
-
-    const data: { csrftoken: string } = await response.json();
-    set({ csrftoken: data.csrftoken });
-    return data.csrftoken;
-  },
-
-  // 🔑 Login
-  login: async (email, password) => {
-    const csrftoken = await get().initCSRF();
-
-    const response = await fetch(
-      "http://localhost:8000/api/escala/auth/login",
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify({ email, password }),
-      },
-    );
-
-    if (!response.ok) {
-      set({ user: null, isAuthenticated: false });
-      return false;
-    }
-
-    const data: { success: boolean } = await response.json();
-
-    if (data.success) {
-      await get().fetchUser();
-      return true;
-    }
-
-    set({ user: null, isAuthenticated: false });
-    return false;
-  },
-
-  // 🚪 Logout
-  logout: async () => {
-    const csrftoken = await get().initCSRF();
-
-    await fetch("http://localhost:8000/api/escala/auth/logout", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "X-CSRFToken": csrftoken,
-      },
-    });
-
-    set({
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
-    });
-  },
 
-  // 👤 Usuário logado (fonte da verdade = backend)
-  fetchUser: async () => {
-    const csrftoken = await get().initCSRF();
+      // 🔐 Garante que o cookie CSRF exista
+      setCsrfToken: async (): Promise<string> => {
+        const response = await fetch(
+          "http://localhost:8000/api/escala/auth/set-csrf-token",
+          {
+            method: "GET",
+            credentials: "include",
+          },
+        );
 
-    const response = await fetch("http://localhost:8000/api/escala/auth/user", {
-      credentials: "include",
-      headers: {
-        "X-CSRFToken": csrftoken,
+        if (!response.ok) {
+          throw new Error("Failed to set CSRF token");
+        }
+
+        const data: { csrftoken: string } = await response.json();
+        return data.csrftoken;
       },
-    });
 
-    if (!response.ok) {
-      set({ user: null, isAuthenticated: false });
-      return;
+      // 🔑 Login
+      login: async (email: string, password: string): Promise<boolean> => {
+        const csrftoken = await get().setCsrfToken();
+
+        const response = await fetch("http://localhost:8000/api/escala/auth/login", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data: { success: boolean } = await response.json();
+
+        if (data.success) {
+          set({ isAuthenticated: true });
+          await get().fetchUser();
+          return true;
+        }
+
+        set({
+          user: null,
+          isAuthenticated: false,
+        });
+
+        return false;
+      },
+
+      // 🚪 Logout
+      logout: async (): Promise<void> => {
+        const csrftoken = await get().setCsrfToken();
+
+        const response = await fetch("http://localhost:8000/api/escala/auth/logout", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "X-CSRFToken": csrftoken,
+          },
+        });
+
+        if (response.ok) {
+          set({
+            user: null,
+            isAuthenticated: false,
+          });
+        }
+      },
+
+      // 👤 Usuário logado
+      fetchUser: async (): Promise<void> => {
+        try {
+          const csrftoken = await get().setCsrfToken();
+
+          const response = await fetch("http://localhost:8000/api/escala/auth/user", {
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Not authenticated");
+          }
+
+          const data: User = await response.json();
+
+          set({
+            user: data,
+            isAuthenticated: true,
+          });
+        } catch {
+          set({
+            user: null,
+            isAuthenticated: false,
+          });
+        }
+      },
+    }),
+    {
+      name: "auth-storage",
+      storage: createJSONStorage(() => localStorage),
+    },
+  ),
+);
+
+export const getCSRFToken = (): string => {
+  const name = "csrftoken";
+  let cookieValue: string | null = null;
+
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+
+      if (cookie.startsWith(name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
     }
+  }
 
-    const data: User = await response.json();
+  if (!cookieValue) {
+    throw new Error("Missing CSRF cookie.");
+  }
 
-    set({
-      user: data,
-      isAuthenticated: true,
-    });
-  },
-}));
+  return cookieValue;
+};
+

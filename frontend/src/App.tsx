@@ -19,11 +19,10 @@ import { useAuthStore } from "./store/authStore";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const initCSRF = useAuthStore((state) => state.initCSRF);
 
   useEffect(() => {
-    void initCSRF();
-  }, [initCSRF]);
+  ;
+  }, );
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
