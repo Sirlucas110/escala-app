@@ -34,7 +34,7 @@ export const useAuthStore = create<AuthState>()(
       // 🔐 Garante que o cookie CSRF exista
       setCsrfToken: async (): Promise<string> => {
         const response = await fetch(
-          "http://localhost:8000/api/escala/auth/set-csrf-token",
+          "https://escala-app.onrender.com/api/escala/auth/set-csrf-token",
           {
             method: "GET",
             credentials: "include",
@@ -53,15 +53,18 @@ export const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string): Promise<boolean> => {
         const csrftoken = await get().setCsrfToken();
 
-        const response = await fetch("http://localhost:8000/api/escala/auth/login", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
+        const response = await fetch(
+          "https://escala-app.onrender.com/api/escala/auth/login",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrftoken,
+            },
+            body: JSON.stringify({ email, password }),
           },
-          body: JSON.stringify({ email, password }),
-        });
+        );
 
         const data: { success: boolean } = await response.json();
 
@@ -83,13 +86,16 @@ export const useAuthStore = create<AuthState>()(
       logout: async (): Promise<void> => {
         const csrftoken = await get().setCsrfToken();
 
-        const response = await fetch("http://localhost:8000/api/escala/auth/logout", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "X-CSRFToken": csrftoken,
+        const response = await fetch(
+          "https://escala-app.onrender.com/api/escala/auth/logout",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "X-CSRFToken": csrftoken,
+            },
           },
-        });
+        );
 
         if (response.ok) {
           set({
@@ -104,13 +110,16 @@ export const useAuthStore = create<AuthState>()(
         try {
           const csrftoken = await get().setCsrfToken();
 
-          const response = await fetch("http://localhost:8000/api/escala/auth/user", {
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": csrftoken,
+          const response = await fetch(
+            "https://escala-app.onrender.com/api/escala/auth/user",
+            {
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken,
+              },
             },
-          });
+          );
 
           if (!response.ok) {
             throw new Error("Not authenticated");
