@@ -30,15 +30,12 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/pessoas" element={<Pessoas />} />
             <Route path="/escalas" element={<Escalas />} />
             <Route path="/instrumentos" element={<Instrumentos />} />
             <Route path="/cargos" element={<Cargo />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
