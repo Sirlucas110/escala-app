@@ -9,9 +9,9 @@ class Instrumento(Model):
         return self.nome
 
     class Meta:
-        db_table = '"escala"."instrumento"'
+        db_table = '"instrumento"'
         verbose_name = 'Instrumento'
         verbose_name_plural = 'Instrumentos'
 
 
-register(model=Instrumento, table_name='"escala"."historico_instrumento"')
+register(model=Instrumento, table_name='"historico_instrumento"')

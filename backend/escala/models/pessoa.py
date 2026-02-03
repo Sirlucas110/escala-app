@@ -14,9 +14,9 @@ class Pessoa(Model):
         return self.nome
 
     class Meta:
-        db_table = '"escala"."pessoa"'
+        db_table = '"pessoa"'
         verbose_name = 'Pessoa'
         verbose_name_plural = 'Pessoas'
 
 
-register(model=Pessoa, table_name='"escala"."historico_pessoa"')
+register(model=Pessoa, table_name='"historico_pessoa"')

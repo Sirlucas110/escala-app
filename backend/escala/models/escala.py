@@ -21,9 +21,8 @@ class Escala(Model):
         return f'Escala do dia {self.data}'
 
     class Meta:
-        db_table = '"escala"."escala"'
         verbose_name = 'Escala'
         verbose_name_plural = 'Escalas'
 
 
-register(model=Escala, table_name='"escala"."historico_escala"')
+register(model=Escala, table_name='"historico_escala"')
