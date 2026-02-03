@@ -1,17 +1,13 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import {
-  Users,
+  BookUser,
   Calendar,
+  Guitar,
   Home,
   UserPlus,
-  Guitar,
-  BookUser,
-  LogOut,
+  Users
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/store/authStore";
-import { useEffect } from "react";
-import { Button } from "./ui/button";
+import { Link, useLocation } from "react-router-dom";
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -24,22 +20,6 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
     { to: "/instrumentos", icon: Guitar, label: "Instrumentos" },
     { to: "/cargos", icon: BookUser, label: "Cargos" },
   ];
-
-  const { isAuthenticated, user, logout, fetchUser } = useAuthStore();
-    const navigate = useNavigate();
-  
-    useEffect(() => {
-      void fetchUser();
-    }, [fetchUser]);
-  
-    const handleLogout = async () => {
-      try {
-        await logout();
-        navigate("/login");
-      } catch (error) {
-        console.error(error);
-      }
-    };
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,25 +61,6 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                 );
               })}
             </div>
-            {isAuthenticated && (
-              <div className="flex items-center gap-4 ml-4 pl-4 border-l">
-                <span className="text-sm text-muted-foreground hidden md:inline">
-                  Olá,{" "}
-                  <span className="font-medium text-foreground">
-                    {user?.email}
-                  </span>
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span className="hidden sm:inline">Sair</span>
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       </nav>
