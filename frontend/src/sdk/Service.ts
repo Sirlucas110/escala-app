@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/store/authStore";
+
 import axios, { AxiosResponse } from "axios";
 
 const Http = axios.create();

@@ -14,7 +14,6 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Pessoas from "./pages/Pessoas";
 import Register from "./pages/Register";
-import { useAuthStore } from "./store/authStore";
 
 const queryClient = new QueryClient();
 
