@@ -138,7 +138,7 @@ CORS_ALLOW_CREDENTIALS = True
 STATIC_ROOT = BASE_DIR/'staticfiles'
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8080',
+    'https://escala-app-1.onrender.com',
 ]
 
 AUTH_USER_MODEL = 'escala.AuthUser'
