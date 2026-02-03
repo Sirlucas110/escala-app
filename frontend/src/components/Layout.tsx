@@ -13,7 +13,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   const navItems = [
-    { to: "/dashboard", icon: Home, label: "Dashboard" },
+    { to: "/", icon: Home, label: "Dashboard" },
     { to: "/cadastro", icon: UserPlus, label: "Cadastro" },
     { to: "/pessoas", icon: Users, label: "Pessoas" },
     { to: "/escalas", icon: Calendar, label: "Escalas" },
