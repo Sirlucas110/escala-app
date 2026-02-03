@@ -17,15 +17,7 @@ const myBaseUrl = isDevelopment ? import.meta.env.VITE_API_BASE_URL_LOCAL : impo
 Http.defaults.baseURL = myBaseUrl
 Http.defaults.withCredentials = true
 
-Http.interceptors.request.use((config) => {
-  const csrf = useAuthStore.getState().setCsrfToken();
 
-  if (csrf) {
-    config.headers["X-CSRFToken"] = csrf;
-  }
-
-  return config;
-});
 
 
 export default Service;
